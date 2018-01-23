@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             xmlns:converters="clr-namespace:XamarinForms_PrismExample.Converters"
+             xmlns:behaviors="clr-namespace:Prism.Behaviors;assembly=Prism.Forms"
+             x:Class="XamarinForms_PrismExample.Views.MainPage"
+             Title="Movies App">
+
+    <!-- Usamos el EventToCommand built-in de Prism junto con nuestro ItemTappedEventArgsConverter para el click sobre elementos del ListView-->
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:ItemTappedEventArgsConverter x:Key="itemTappedEventArgsConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <StackLayout Padding="20">
+        <Button Text="Get Movies"
+                    Command="{Binding GetMoviesCommand}" />
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           HeightRequest="40" />
+
+        <ListView ItemsSource="{Binding MoviesCollection.results}"
+              SeparatorVisibility="Default"
+              SeparatorColor="#3498db"
+              HasUnevenRows="True"
+              CachingStrategy="RecycleElement"
+              IsPullToRefreshEnabled="True"
+              RefreshCommand="{Binding GetMoviesCommand}"
+              IsRefreshing="{Binding IsBusy, Mode=OneWay}"
+              x:Name="ListViewMovies">
+            <ListView.Behaviors>
+                <behaviors:EventToCommandBehavior EventName="ItemTapped" 
+                                      Command="{Binding ItemTappedCommand}"
+                                      EventArgsConverter="{StaticResource itemTappedEventArgsConverter}" />
+            </ListView.Behaviors>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <StackLayout Orientation="Horizontal" Padding="10,0,0,0">
+                            <Image HeightRequest="100"
+                               WidthRequest="64"
+                               VerticalOptions="Center"
+                               Source="{Binding ImageURL}"/>
+                            <StackLayout Padding="10" Spacing="5">
+
+                                <Label Text="{Binding title}"
+                                     FontSize="22"/>
+
+                                <Label Text="{Binding overview}"/>
+
+                                <Label Text="{Binding release_date, StringFormat='Fecha estreno: {0}'}"/>
+
+                            </StackLayout>
+                        </StackLayout>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+
+    </StackLayout>
+
+</ContentPage>

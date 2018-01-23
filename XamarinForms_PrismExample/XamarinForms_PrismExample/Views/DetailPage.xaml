@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="XamarinForms_PrismExample.Views.DetailPage">
+
+    <StackLayout BindingContext="{Binding Movie, Mode=OneWay}" Orientation="Horizontal" Padding="10,0,0,0">
+        <Image HeightRequest="400"
+                               WidthRequest="180"
+                               VerticalOptions="Start"
+                               Source="{Binding ImageURL}"/>
+        
+        <StackLayout Padding="10" Spacing="5">
+
+            <Label Text="{Binding title}"
+                                     FontSize="22"/>
+
+            <Label Text="{Binding overview}"/>
+
+            <Label Text="{Binding release_date, StringFormat='Fecha estreno: {0}'}"/>
+
+        </StackLayout>
+    </StackLayout>
+
+</ContentPage>
