@@ -1,24 +1,38 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:XamarinForms_PrismExample.Converters"
              x:Class="XamarinForms_PrismExample.Views.DetailPage">
 
-    <StackLayout BindingContext="{Binding Movie, Mode=OneWay}" Orientation="Horizontal" Padding="10,0,0,0">
-        <Image HeightRequest="400"
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:NullableIntConverter x:Key="nullableIntConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    <StackLayout>
+
+        <StackLayout Orientation="Horizontal" Padding="10,0,0,0">
+            <Image HeightRequest="400"
                                WidthRequest="180"
                                VerticalOptions="Start"
-                               Source="{Binding ImageURL}"/>
-        
-        <StackLayout Padding="10" Spacing="5">
+                               Source="{Binding Movie.ImageURL}"/>
 
-            <Label Text="{Binding title}"
-                                     FontSize="22"/>
+            <StackLayout Padding="10" Spacing="5">
 
-            <Label Text="{Binding overview}"/>
+                <Label Text="{Binding Movie.title}" FontSize="22"/>
 
-            <Label Text="{Binding release_date, StringFormat='Fecha estreno: {0}'}"/>
+                <Label Text="{Binding Movie.overview}"/>
 
+                <Label Text="{Binding Movie.release_date, StringFormat='Fecha estreno: {0}'}"/>
+
+            </StackLayout>
         </StackLayout>
+
+        <Label Text="Tu puntuación: "/>
+        <Entry Keyboard="Numeric" Text="{Binding Movie.Rating, Mode=TwoWay, Converter={StaticResource nullableIntConverter}}"/>
+        <Button Text="Guardar puntuación" Command="{Binding SaveRatingCommand}" />
+
     </StackLayout>
 
 </ContentPage>

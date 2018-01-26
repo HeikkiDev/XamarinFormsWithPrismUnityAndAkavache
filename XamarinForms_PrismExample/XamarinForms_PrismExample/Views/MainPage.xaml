@@ -22,6 +22,7 @@
                            HeightRequest="40" />
 
         <ListView ItemsSource="{Binding MoviesCollection.results}"
+              SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
               SeparatorVisibility="Default"
               SeparatorColor="#3498db"
               HasUnevenRows="True"
