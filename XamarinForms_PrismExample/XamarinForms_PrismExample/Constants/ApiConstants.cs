@@ -11,6 +11,7 @@ namespace XamarinForms_PrismExample.Constants
         public const string API_PROTOCOL = "https";
 
         public const string GetMoviesByReleaseAndLanguage = "discover/movie?primary_release_date.gte={0}&primary_release_date.lte={1}&language={2}";
+        public const string GetMovieByID = "movie/{0}?language={1}";
 
         public const string ApiKey = "29048abbc8184fde73f24020bf3cfff9";
 

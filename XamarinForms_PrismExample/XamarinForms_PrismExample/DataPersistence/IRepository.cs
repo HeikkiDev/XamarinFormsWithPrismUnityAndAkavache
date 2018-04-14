@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using XamarinForms_PrismExample.Models;
 
 namespace XamarinForms_PrismExample.DataPersistence
 {
-    public interface IRepository<T> where T : EntityBase
+    public interface IRepository
     {
-        Task<List<T>> GetItems();
-        Task<T> GetById(long id);
-        Task<int> Create(T entity);
-        void Delete(T entity);
-        Task<int> Update(T entity);
+        IObservable<TCollection> GetItems<T, TCollection>(string apiUri, string[] queryArgs) where T : EntityBase, new() where TCollection : EntityCollectionBase<T>, new();
+        IObservable<T> GetById<T>(string apiUri, long id, string[] queryArgs) where T : EntityBase, new();
+        Task<bool> Create<T>(T entity) where T : EntityBase, new();
+        Task<bool> Delete<T>(T entity) where T : EntityBase, new();
+        Task<bool> Update<T>(T entity) where T : EntityBase, new();
     }
 }

@@ -1,20 +1,17 @@
-﻿using Prism.Navigation;
+﻿using Prism.AppModel;
+using Prism.Navigation;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 using XamarinForms_PrismExample.DataPersistence;
 using XamarinForms_PrismExample.Models;
-using XamarinForms_PrismExample.Services;
 
 namespace XamarinForms_PrismExample.ViewModels
 {
-    public class MainPageViewModel : BaseViewModel
+    public class MainPageViewModel : BaseViewModel, INavigationAware, IApplicationLifecycleAware
     {
         private INavigationService _navigationService;
-        private IMoviesService _moviesService;
-        private IRepository<Movie> _movieRepository;
+        private IRepository _repository;
 
         private Movie _selectedItem;
         public Movie SelectedItem
@@ -39,35 +36,27 @@ namespace XamarinForms_PrismExample.ViewModels
         }
 
         // Constructor
-        public MainPageViewModel(INavigationService navigationService, IMoviesService moviesService, IRepository<Movie> movieRepository)
+        public MainPageViewModel(INavigationService navigationService, IRepository repository)
         {
             _navigationService = navigationService;
-            _moviesService = moviesService;
-            _movieRepository = movieRepository;
-
-            IsBusy = true;
-            Load();
+            _repository = repository;
         }
 
-        public async Task Load()
+        public void Load()
         {
             try
             {
-                // En esta request a la API Rest podemos definir excepciones de conexión o lo que sea, y leer las pelis de base de datos local en este caso
-                var moviesCollectionTask = await _moviesService.GetMoviesByReleaseAndLanguage("2018-01-22", "2018-01-15", "es");
+                string apiUri = Constants.ApiConstants.GetMoviesByReleaseAndLanguage;
+                string[] queryArgs = { "2018-01-15", "2018-01-22", Constants.ApiConstants.spanishCode }; // dateReleaseMin, dateReleaseMax, languageCode
 
-                // Si la request de pelis ha ido bien, se insertan/actualizan en base de datos local
-                List<Task> taskList = new List<Task>();
-                foreach (Movie item in moviesCollectionTask.results)
-                {
-                    var newTask = _movieRepository.Create(item); // Inserta o reemplaza la pelicula en su tabla
-                    taskList.Add(newTask);
-                }
-                await Task.WhenAll(taskList.ToArray()); // Aquí ver cómo sacar el estado después de que las tareas se hayan completado, o cancelado, o lo que sea
+                // Este .Subscribe se ejecutará dos veces, la primera con la info cacheada, y la segunda con la info que se traiga de la llamada a la API Rest
+                _repository.GetItems<Movie, MoviesCollection>(apiUri, queryArgs).Subscribe(
+                    cachedThenUpdatedMoviesCollection => {
 
-                // Tras haber guardado las pelis en local, le damos la colección a la propiedad que usa la vista
-                MoviesCollection = moviesCollectionTask;
-                IsBusy = false;
+                        MoviesCollection = cachedThenUpdatedMoviesCollection;
+                        if (IsBusy) IsBusy = false;
+
+                    });
             }
             catch (Exception ex)
             {
@@ -76,10 +65,10 @@ namespace XamarinForms_PrismExample.ViewModels
         }
 
         public ICommand GetMoviesCommand => (new Command(
-          async () =>
+          () =>
           {
               IsBusy = true;
-              await Load();
+              Load();
           }));
 
 
@@ -99,9 +88,45 @@ namespace XamarinForms_PrismExample.ViewModels
             parameters.Add("detail", movie);
 
             await _navigationService.NavigateAsync("DetailPage", parameters);
+            // Otra opción sería:
+            // await _navigationService.NavigateAsync("DetailPage?movieId=movie.id");
+            // Y en la página DetailPage obtendríamos el ID y cogeríamos la Película del Repositorio...
 
             SelectedItem = null; // Para deshabilitar la selección del ListView...
         }
 
+        #region Prism INavigationAware
+        public void OnNavigatedFrom(NavigationParameters parameters)
+        {
+            //
+        }
+
+        public void OnNavigatedTo(NavigationParameters parameters)
+        {
+            // Avoid Load in back navegation fromn Detail to MainPage
+            if(parameters.GetNavigationMode() == NavigationMode.New)
+            {
+                IsBusy = true;
+                Load();
+            }
+        }
+
+        public void OnNavigatingTo(NavigationParameters parameters)
+        {
+            //
+        }
+        #endregion
+
+        #region IApplicationLifecycleAware
+        public void OnResume()
+        {
+            // Manage On Resume here!
+        }
+
+        public void OnSleep()
+        {
+            // Manage On Sleep here!
+        }
+        #endregion
     }
 }

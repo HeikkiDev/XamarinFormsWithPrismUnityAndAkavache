@@ -1,7 +1,4 @@
-﻿using SQLite;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using XamarinForms_PrismExample.Constants;
 
 namespace XamarinForms_PrismExample.Models
@@ -16,7 +13,6 @@ namespace XamarinForms_PrismExample.Models
         public string poster_path { get; set; }
         public string original_language { get; set; }
         public string original_title { get; set; }
-        [Ignore]
         public List<int> genre_ids { get; set; } // Ignoramos la lista de géneros, porque SQLite no puede meter un tipo List<>. Habría que crear una tabla para ello relacionada con la película
         public string backdrop_path { get; set; }
         public bool adult { get; set; }
@@ -30,7 +26,6 @@ namespace XamarinForms_PrismExample.Models
         }
 
         // Propiedad para que el usuario puntúe la película
-        [MaxLength(100)]
         public int Rating { get; set; }
     }
 }

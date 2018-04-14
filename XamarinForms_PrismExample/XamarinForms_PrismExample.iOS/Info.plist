@@ -50,5 +50,7 @@
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>XamarinForms_PrismExample</string>
+  <key>NSLocationWhenInUsageDescription</key>
+  <string>Location bla bla bla</string>
 </dict>
 </plist>

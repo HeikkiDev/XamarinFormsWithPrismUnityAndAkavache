@@ -32,3 +32,8 @@ using Android.App;
 // Add some common permissions, these can be removed if not needed
 [assembly: UsesPermission(Android.Manifest.Permission.Internet)]
 [assembly: UsesPermission(Android.Manifest.Permission.WriteExternalStorage)]
+
+//By adding ACCESS_COARSE_LOCATION & ACCESS_FINE_LOCATION permissions Google Play will automatically filter out devices without specific hardward.You can get around this by adding the following to your AssemblyInfo.cs file in your Android project:
+[assembly: UsesFeature("android.hardware.location", Required = false)]
+[assembly: UsesFeature("android.hardware.location.gps", Required = false)]
+[assembly: UsesFeature("android.hardware.location.network", Required = false)]

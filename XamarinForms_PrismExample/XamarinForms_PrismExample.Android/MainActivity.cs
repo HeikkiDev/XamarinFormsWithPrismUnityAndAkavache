@@ -9,6 +9,10 @@ using Android.OS;
 using Prism;
 using Prism.Ioc;
 
+// usings required to use GeoLocator Xamarin Plugin
+using Plugin.Permissions;
+using Plugin.Permissions.Abstractions;
+
 namespace XamarinForms_PrismExample.Droid
 {
     [Activity(Label = "XamarinForms_PrismExample", Icon = "@drawable/icon", Theme = "@style/MainTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation)]
@@ -23,6 +27,12 @@ namespace XamarinForms_PrismExample.Droid
 
             global::Xamarin.Forms.Forms.Init(this, bundle);
             LoadApplication(new App(new AndroidInitializer()));
+        }
+
+        // Override required to use GeoLocator Xamarin Plugin
+        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Android.Content.PM.Permission[] grantResults)
+        {
+            PermissionsImplementation.Current.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 

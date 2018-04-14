@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Plugin.Connectivity;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using XamarinForms_PrismExample.Constants;
 
@@ -12,6 +10,8 @@ namespace XamarinForms_PrismExample.Services
 {
     class ApiService : IApiService
     {
+        readonly HttpClient _httpClient = new HttpClient();
+
         public ApiService()
         {
 
@@ -35,23 +35,19 @@ namespace XamarinForms_PrismExample.Services
             try
             {
                 CheckConnection();
-                using (HttpClient client = new HttpClient())
+                Debug.WriteLine($">>> Get request {WebServiceUrl} ");
+                var response = await _httpClient.GetAsync(WebServiceUrl);
+                Debug.WriteLine($"<<< Get response {WebServiceUrl} ");
+
+                if (response.IsSuccessStatusCode)
                 {
-                    Debug.WriteLine($">>> Get request {WebServiceUrl} ");
-                    var response = await client.GetAsync(WebServiceUrl);
-                    Debug.WriteLine($"<<< Get response {WebServiceUrl} ");
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        var result = JsonConvert.DeserializeObject<T>(content);
-                        return result;
-                    }
-                    else
-                    {
-                        throw new Exception(response.ReasonPhrase);
-                    }
-
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<T>(content);
+                    return result;
+                }
+                else
+                {
+                    throw new Exception(response.ReasonPhrase);
                 }
 
             }
@@ -76,7 +72,7 @@ namespace XamarinForms_PrismExample.Services
         /// <summary>
         /// Transforma la ruta relativa a la que queremos acceder a una absoluta
         /// Esto en realidad no es genérico ya que se están usando parámetros propios de la api de TheMovieDb como 'api_key'..
-        /// Ver cómo hacerlo genérico, ya que cada EntidadApiService heredará de esta clase
+        /// Ver cómo hacerlo genérico, ya que de esta clase heredará cada EntidadService...
         /// </summary>
         /// <param name="apiUri">ruta relativa a recursos de la api</param>
         /// <param name="queryArgs">parametros para la query</param>

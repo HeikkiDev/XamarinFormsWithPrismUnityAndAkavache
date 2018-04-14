@@ -10,6 +10,7 @@ using XamarinForms_PrismExample.Views;
 using XamarinForms_PrismExample.Services;
 using XamarinForms_PrismExample.DataPersistence;
 using XamarinForms_PrismExample.Models;
+using Akavache;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace XamarinForms_PrismExample
@@ -22,7 +23,13 @@ namespace XamarinForms_PrismExample
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("MainPage"); // Al inicializarse la app vamos a MainPage
+            // Make sure you set the Akavache application name before doing any inserts or gets
+            BlobCache.ApplicationName = "AkavacheMoviesApp";
+
+            // Al inicializarse la app vamos a MainPage (que estará dentro de una NavigationPage)
+            // Al añadir delante de MainPage NavigationPage, todas las páginas a la que naveguemos a partir de aquí estarán
+            // también dentro de una NavigationPage sin necesidad de ponerlo explicitamente en el método NavigateAsync
+            await NavigationService.NavigateAsync("NavigationPage/MainPage");
         }
 
 
@@ -31,6 +38,8 @@ namespace XamarinForms_PrismExample
             /*
              * NAVEGACIÓN Y VISTAS
              */
+             // Registramos NavigationPage de XamarinForms, que vamos a usar para embeber dentro nuestras Páginas para habilitarles así el control de navegación atrás
+            containerRegistry.RegisterForNavigation<NavigationPage>();
             // Registramos el servicio de navegación de Xamarin.Forms
             containerRegistry.RegisterForNavigation<NavigationPage>();
             // Registramos nuestra vista principal (que lista las peliculas de estreno) y su correspondiente ViewModel
@@ -41,21 +50,20 @@ namespace XamarinForms_PrismExample
             /*
              * SERVICIOS
              */
-            // Registramos el servicio base genérico de la API Rest que van a usar los demás EntidadService...
+            // Registramos el servicio base genérico de la API Rest que va a realizar las request
             containerRegistry.Register<IApiService, ApiService>();
-            // Registramos el servicio de la API Rest para obtener datos sobre Películas de Estreno!
-            containerRegistry.Register<IMoviesService, MoviesService>();
+            // Registramos el servicio de acceso a file system especifico de cada plataforma, gracias al plugin PCLStorage
+            containerRegistry.Register<IFileSystemService, FileSystemService>();
+            // Registramos el servicio de geolocalización especifico de cada plataforma, gracias al plugin de Xamarin GeoLocator
+            containerRegistry.Register<IGeoLocationService, GeoLocationService>();
 
             /*
              * PERSISTENCIA DE DATOS
              */
-            // Registramos la instancia de SQLiteDatabase
-            containerRegistry.RegisterSingleton<ISQLiteDatabase, SQLiteDatabase>();
             // Registramos la instancia de RemoteDatabase
             containerRegistry.RegisterSingleton<IRemoteDatabase, RemoteDatabase>();
-            // Registramos el repositorio de Movie
-            containerRegistry.RegisterSingleton<IRepository<Movie>, Repository<Movie>>();
-            // === Aquí registraríamos los repositorios de los demás modelos... ===
+            // Registramos el repositorio genérico para los Models
+            containerRegistry.RegisterSingleton<IRepository, Repository>();
 
         }
     }
